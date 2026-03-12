@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Essay Forge</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1208;
+    --paper: #f5f0e8;
+    --cream: #ede7d3;
+    --accent: #c4420a;
+    --gold: #d4a853;
+    --muted: #8a7d66;
+    --border: #ccc0a4;
+    --green: #2e7d4f;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    padding: 40px 20px;
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(180,160,120,0.12) 27px, rgba(180,160,120,0.12) 28px);
+  }
+
+  .container { max-width: 760px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 40px; animation: fadeDown 0.6s ease both; }
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.8rem, 7vw, 4.5rem);
+    letter-spacing: -1px; line-height: 1; color: var(--ink);
+  }
+  header h1 em { font-style: italic; color: var(--accent); }
+  header p { margin-top: 10px; color: var(--muted); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 0 auto 28px; width: 60%; }
+
+  /* ── CONFIG BANNER ── */
+  .config-banner {
+    background: #fffbf0;
+    border: 1.5px dashed var(--gold);
+    border-radius: 2px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    animation: fadeUp 0.4s ease both;
+  }
+  .config-banner .config-title {
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--gold); margin-bottom: 10px; font-weight: 500;
+  }
+  .config-row { display: flex; gap: 8px; align-items: center; }
+  .config-row input {
+    flex: 1; background: #fff; border: 1px solid var(--border);
+    border-radius: 2px; padding: 9px 12px;
+    font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--ink);
+    outline: none; transition: border-color 0.2s;
+  }
+  .config-row input:focus { border-color: var(--accent); }
+  .config-row input::placeholder { color: var(--border); }
+  .config-hint { font-size: 0.68rem; color: var(--muted); margin-top: 7px; }
+  .config-banner.connected { border-color: var(--green); background: #f4fbf6; }
+  .config-banner.connected .config-title { color: var(--green); }
+
+  /* ── SYNC BAR ── */
+  .sync-bar {
+    display: flex; align-items: center; gap: 10px;
+    background: #fff; border: 1px solid var(--border);
+    border-radius: 2px; padding: 9px 16px; margin-bottom: 20px;
+    font-size: 0.72rem; color: var(--muted); animation: fadeUp 0.4s ease both;
+  }
+  .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex-shrink: 0; transition: background 0.4s; }
+  .sync-dot.ok   { background: var(--green); }
+  .sync-dot.err  { background: var(--accent); }
+  .sync-dot.busy { background: var(--gold); animation: pulse 0.8s infinite; }
+  .sync-msg { flex: 1; }
+
+  /* ── CARD ── */
+  .card {
+    background: #fff; border: 1px solid var(--border); border-radius: 2px;
+    padding: 28px 32px; margin-bottom: 24px;
+    box-shadow: 4px 4px 0 var(--cream); animation: fadeUp 0.5s ease both;
+  }
+  .card-title {
+    font-family: 'DM Serif Display', serif; font-size: 1.1rem;
+    margin-bottom: 18px; display: flex; align-items: center; gap: 10px;
+  }
+  .card-title .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border: 1.5px solid var(--accent);
+    color: var(--accent); font-family: 'DM Mono', monospace; font-size: 0.72rem;
+    border-radius: 50%; flex-shrink: 0;
+  }
+
+  /* ── TOPICS ── */
+  .topic-input-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  input[type="text"] {
+    background: var(--paper); border: 1px solid var(--border); border-radius: 2px;
+    padding: 10px 14px; font-family: 'DM Mono', monospace; font-size: 0.82rem;
+    color: var(--ink); outline: none; transition: border-color 0.2s; width: 100%;
+  }
+  input[type="text"]:focus { border-color: var(--accent); background: #fff; }
+
+  .btn {
+    font-family: 'DM Mono', monospace; font-size: 0.78rem; letter-spacing: 0.05em;
+    padding: 10px 20px; border: 1.5px solid var(--ink); border-radius: 2px;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap; background: transparent; color: var(--ink);
+  }
+  .btn:hover { background: var(--ink); color: var(--paper); }
+  .btn-accent { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-accent:hover { background: #a33608; border-color: #a33608; color: #fff; }
+  .btn-sm { padding: 6px 12px; font-size: 0.72rem; }
+
+  .topic-list { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; min-height: 36px; }
+  .topic-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--cream); border: 1px solid var(--border);
+    border-radius: 2px; padding: 6px 12px; font-size: 0.78rem; animation: popIn 0.2s ease both;
+  }
+  .topic-tag button { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 1rem; line-height: 1; padding: 0; transition: color 0.15s; }
+  .topic-tag button:hover { color: var(--accent); }
+  .empty-hint { color: var(--muted); font-size: 0.75rem; font-style: italic; padding: 8px 0; }
+
+  /* ── RESULT ── */
+  .result-box {
+    background: var(--ink); color: var(--paper); border-radius: 2px;
+    padding: 28px 32px; margin-bottom: 24px; min-height: 90px;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    position: relative; overflow: hidden; animation: fadeUp 0.5s ease 0.1s both;
+  }
+  .result-box::before {
+    content: ''; position: absolute; inset: 0;
+    background: repeating-linear-gradient(-45deg, transparent, transparent 6px, rgba(255,255,255,0.02) 6px, rgba(255,255,255,0.02) 7px);
+  }
+  .result-text {
+    font-family: 'DM Serif Display', serif; font-size: clamp(1.1rem, 3vw, 1.5rem);
+    line-height: 1.4; position: relative; z-index: 1; transition: opacity 0.3s;
+  }
+  .result-placeholder { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; position: relative; z-index: 1; }
+  .spin-btn-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 32px; animation: fadeUp 0.5s ease 0.15s both; }
+
+  /* ── TIMER ── */
+  .section-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+  .preset-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+  .preset-btn {
+    font-family: 'DM Mono', monospace; font-size: 0.75rem; padding: 6px 14px;
+    border: 1px solid var(--border); border-radius: 2px; background: var(--paper);
+    cursor: pointer; color: var(--ink); transition: all 0.15s;
+  }
+  .preset-btn:hover, .preset-btn.active { background: var(--gold); border-color: var(--gold); }
+
+  .slider-section { margin-bottom: 18px; }
+  .slider-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  .slider-top .lbl { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .slider-top .val { font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: var(--accent); }
+
+  input[type="range"] {
+    -webkit-appearance: none; width: 100%; height: 4px; border-radius: 2px; outline: none; cursor: pointer;
+    background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--pct, 21.3%), var(--cream) var(--pct, 21.3%), var(--cream) 100%);
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--accent); border: 3px solid #fff; box-shadow: 0 1px 5px rgba(0,0,0,0.22);
+    transition: transform 0.15s; cursor: grab;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  input[type="range"]::-moz-range-thumb {
+    width: 20px; height: 20px; border-radius: 50%; background: var(--accent);
+    border: 3px solid #fff; box-shadow: 0 1px 5px rgba(0,0,0,0.22); cursor: grab;
+  }
+  .slider-ticks { display: flex; justify-content: space-between; margin-top: 6px; padding: 0 2px; }
+  .slider-ticks span { font-size: 0.64rem; color: var(--muted); }
+
+  .sec-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+  .sec-row .lbl { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  input[type="number"] {
+    background: var(--paper); border: 1px solid var(--border); border-radius: 2px;
+    padding: 8px 12px; font-family: 'DM Mono', monospace; font-size: 0.82rem;
+    color: var(--ink); width: 72px; outline: none; transition: border-color 0.2s;
+  }
+  input[type="number"]:focus { border-color: var(--accent); background: #fff; }
+
+  .saved-timers { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .saved-timer-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--cream); border: 1px solid var(--border); padding: 6px 12px;
+    font-size: 0.75rem; border-radius: 2px; cursor: pointer; transition: all 0.15s; animation: popIn 0.2s ease both;
+  }
+  .saved-timer-tag:hover { background: var(--gold); border-color: var(--gold); }
+  .saved-timer-tag .del { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 0.85rem; padding: 0; transition: color 0.15s; }
+  .saved-timer-tag .del:hover { color: var(--accent); }
+
+  .timer-display { text-align: center; padding: 22px 0 16px; border-top: 1px solid var(--border); }
+  .timer-clock {
+    font-family: 'DM Serif Display', serif; font-size: clamp(3rem, 10vw, 5rem);
+    letter-spacing: -2px; line-height: 1; transition: color 0.3s;
+  }
+  .timer-clock.warning { color: var(--accent); }
+  .timer-clock.done    { color: var(--muted); }
+  .timer-label { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin-top: 6px; }
+  .progress-track { height: 3px; background: var(--cream); border-radius: 2px; margin-top: 16px; overflow: hidden; }
+  .progress-fill  { height: 100%; background: var(--gold); border-radius: 2px; width: 100%; transition: width 1s linear, background 0.3s; }
+  .timer-btn-row { display: flex; gap: 10px; justify-content: center; margin-top: 18px; }
+
+  footer { text-align: center; margin-top: 40px; color: var(--muted); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; animation: fadeUp 0.5s ease 0.3s both; }
+
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-18px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeUp   { from{opacity:0;transform:translateY(14px)}  to{opacity:1;transform:translateY(0)} }
+  @keyframes popIn    { from{opacity:0;transform:scale(0.85)}        to{opacity:1;transform:scale(1)} }
+  @keyframes shake    { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-6px)} 40%,80%{transform:translateX(6px)} }
+  @keyframes pulse    { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .shaking { animation: shake 0.4s ease; }
+  .pulsing  { animation: pulse 1s infinite; }
+
+  @media(max-width:500px){ .card{padding:20px 16px;} .sec-row{flex-direction:column;align-items:flex-start;} }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Essay <em>Forge</em></h1>
+    <p>Topic Generator &amp; Writing Timer</p>
+  </header>
+  <hr class="divider">
+
+  <!-- ── GOOGLE SHEETS CONFIG ── -->
+  <div class="config-banner" id="configBanner">
+    <div class="config-title">⚙ Google Sheets — Paste your Web App URL to enable shared topics</div>
+    <div class="config-row">
+      <input type="text" id="sheetsUrl"
+        placeholder="https://script.google.com/macros/s/AKfycbwDVGvRjllY2_fxgIdIeTDzNrLkfIzUqNSKj2-Xj0i0NJTmgEjwO353zrpwfFxSfMY8/exec"
+        oninput="onUrlInput()" />
+      <button class="btn btn-sm btn-accent" onclick="connectSheets()">Connect</button>
+    </div>
+    <div class="config-hint" id="configHint">
+      Paste the Web App URL from your Apps Script deployment above, then click Connect.
+      Topics will sync across everyone who uses this page.
+    </div>
+  </div>
+
+  <!-- SYNC STATUS BAR -->
+  <div class="sync-bar">
+    <div class="sync-dot" id="syncDot"></div>
+    <span class="sync-msg" id="syncMsg">Not connected — paste your Google Sheets URL above</span>
+  </div>
+
+  <!-- TOPICS CARD -->
+  <div class="card" style="animation-delay:0.05s">
+    <div class="card-title"><span class="num">1</span> Shared Topic Pool</div>
+    <div class="topic-input-row">
+      <input type="text" id="topicInput" placeholder="Type a topic and press Add or Enter…" />
+      <button class="btn" onclick="addTopic()">Add</button>
+    </div>
+    <ul class="topic-list" id="topicList"></ul>
+    <p class="empty-hint" id="emptyHint">hi moony! add some topics here</p>
+    <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-sm" onclick="loadSamples()">Load samples</button>
+      <button class="btn btn-sm" onclick="clearTopics()">Clear all</button>
+    </div>
+  </div>
+
+  <!-- GENERATE -->
+  <div class="result-box" id="resultBox">
+    <span class="result-placeholder" id="resultPlaceholder">Your topic will appear here</span>
+    <span class="result-text" id="resultText" style="display:none"></span>
+  </div>
+  <div class="spin-btn-row">
+    <button class="btn btn-accent" onclick="generateTopic()" style="font-size:0.9rem;padding:12px 32px;">✦ Generate Topic</button>
+    <button class="btn" onclick="generateTopic()">Shuffle</button>
+  </div>
+
+  <!-- TIMER CARD -->
+  <div class="card" style="animation-delay:0.1s">
+    <div class="card-title"><span class="num">2</span> Writing Timer</div>
+
+    <div class="section-label">Quick presets</div>
+    <div class="preset-row">
+      <button class="preset-btn" onclick="applyPreset(5,this)">5 min</button>
+      <button class="preset-btn" onclick="applyPreset(10,this)">10 min</button>
+      <button class="preset-btn" onclick="applyPreset(15,this)">15 min</button>
+      <button class="preset-btn" onclick="applyPreset(20,this)">20 min</button>
+      <button class="preset-btn" onclick="applyPreset(25,this)">25 min</button>
+      <button class="preset-btn" onclick="applyPreset(30,this)">30 min</button>
+      <button class="preset-btn" onclick="applyPreset(45,this)">45 min</button>
+      <button class="preset-btn" onclick="applyPreset(60,this)">60 min</button>
+      <button class="preset-btn" onclick="applyPreset(75,this)">75 min</button>
+      <button class="preset-btn" onclick="applyPreset(90,this)">90 min</button>
+    </div>
+
+    <div class="section-label">Or drag to any duration</div>
+    <div class="slider-section">
+      <div class="slider-top">
+        <span class="lbl">Duration</span>
+        <span class="val" id="sliderVal">20 min</span>
+      </div>
+      <input type="range" id="minSlider" min="1" max="90" value="20" oninput="onSlider(this)">
+      <div class="slider-ticks">
+        <span>1</span><span>15</span><span>30</span><span>45</span><span>60</span><span>75</span><span>90</span>
+      </div>
+    </div>
+
+    <div class="sec-row">
+      <span class="lbl">+ extra seconds:</span>
+      <input type="number" id="extraSec" placeholder="0" min="0" max="59" value="0" />
+      <button class="btn btn-sm" onclick="applySlider()">Set timer</button>
+      <button class="btn btn-sm" onclick="saveCurrentTimer()">Save timer</button>
+    </div>
+
+    <div class="saved-timers" id="savedTimers"></div>
+
+    <div class="timer-display">
+      <div class="timer-clock" id="timerClock">00:00</div>
+      <div class="timer-label" id="timerLabel">Set a duration above</div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+    <div class="timer-btn-row">
+      <button class="btn btn-accent" id="startBtn" onclick="startPause()">Start</button>
+      <button class="btn" onclick="resetTimer()">Reset</button>
+    </div>
+  </div>
+
+  <footer>Essay Forge &nbsp;·&nbsp; Think. Write. Forge.</footer>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  GOOGLE SHEETS CONFIG
+// ═══════════════════════════════════════════════
+const LS_URL_KEY    = 'essayforge_sheets_url';
+const LS_TIMER_KEY  = 'essayforge_timers';
+
+let SHEETS_URL = localStorage.getItem(LS_URL_KEY) || '';
+
+function setSyncStatus(state, msg) {
+  document.getElementById('syncDot').className = 'sync-dot ' + state;
+  document.getElementById('syncMsg').textContent = msg;
+}
+
+function onUrlInput() {
+  // live-trim whitespace as they type
+  const inp = document.getElementById('sheetsUrl');
+  inp.value = inp.value.trim();
+}
+
+function connectSheets() {
+  const val = document.getElementById('sheetsUrl').value.trim();
+  if (!val.startsWith('https://script.google.com')) {
+    document.getElementById('configHint').textContent = '⚠ That doesn\'t look like a valid Apps Script URL. Please check and try again.';
+    document.getElementById('configHint').style.color = 'var(--accent)';
+    return;
+  }
+  SHEETS_URL = val;
+  localStorage.setItem(LS_URL_KEY, SHEETS_URL);
+  markConnected();
+  loadTopics();
+}
+
+function markConnected() {
+  const banner = document.getElementById('configBanner');
+  banner.classList.add('connected');
+  document.getElementById('configHint').textContent = '✓ Connected. Topics will sync via your Google Sheet.';
+  document.getElementById('configHint').style.color = 'var(--green)';
+}
+
+// ═══════════════════════════════════════════════
+//  GOOGLE SHEETS API CALLS
+// ═══════════════════════════════════════════════
+async function sheetsGet() {
+  const res = await fetch(SHEETS_URL);
+  if (!res.ok) throw new Error('Fetch failed: ' + res.status);
+  return await res.json(); // returns string[]
+}
+
+async function sheetsSet(topicsArr) {
+  await fetch(SHEETS_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'set', topics: topicsArr }),
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  TOPICS
+// ═══════════════════════════════════════════════
+let topics = [];
+let lastPicked = null;
+
+const SAMPLES = [
+  "The ethics of artificial intelligence in everyday life",
+  "Should social media platforms be regulated by governments?",
+  "Climate change: individual responsibility vs. systemic change",
+  "The impact of remote work on urban communities",
+  "Is a college degree still worth the investment?",
+  "The role of art in political movements",
+  "Privacy in the age of surveillance capitalism",
+  "Fast fashion and its environmental consequences",
+  "Should voting be mandatory in democracies?",
+  "The future of human-machine collaboration",
+];
+
+async function loadTopics() {
+  if (!SHEETS_URL) return;
+  setSyncStatus('busy', 'Loading topics from Google Sheets…');
+  try {
+    const data = await sheetsGet();
+    topics = Array.isArray(data) ? data : [];
+    renderTopics();
+    setSyncStatus('ok', `${topics.length} topic${topics.length !== 1 ? 's' : ''} loaded — synced via Google Sheets`);
+  } catch(e) {
+    setSyncStatus('err', 'Could not reach Google Sheets — check your URL and sheet permissions');
+  }
+}
+
+async function saveTopics() {
+  if (!SHEETS_URL) {
+    setSyncStatus('err', 'No Google Sheets URL set — topics are local only');
+    return;
+  }
+  setSyncStatus('busy', 'Saving to Google Sheets…');
+  try {
+    await sheetsSet(topics);
+    setSyncStatus('ok', `${topics.length} topic${topics.length !== 1 ? 's' : ''} saved to Google Sheets`);
+  } catch(e) {
+    setSyncStatus('err', 'Save failed — check your sheet permissions');
+  }
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderTopics() {
+  const list = document.getElementById('topicList');
+  const hint = document.getElementById('emptyHint');
+  list.innerHTML = '';
+  hint.style.display = topics.length ? 'none' : 'block';
+  topics.forEach((t, i) => {
+    const li = document.createElement('li');
+    li.className = 'topic-tag';
+    li.innerHTML = `<span>${escHtml(t)}</span><button onclick="removeTopic(${i})" title="Remove">×</button>`;
+    list.appendChild(li);
+  });
+}
+
+async function addTopic() {
+  const inp = document.getElementById('topicInput');
+  const val = inp.value.trim();
+  if (!val) return;
+  if (!topics.includes(val)) { topics.push(val); renderTopics(); await saveTopics(); }
+  inp.value = ''; inp.focus();
+}
+
+async function removeTopic(i) { topics.splice(i, 1); renderTopics(); await saveTopics(); }
+
+async function clearTopics() {
+  if (!topics.length) return;
+  topics = []; renderTopics(); resetResult(); await saveTopics();
+}
+
+async function loadSamples() {
+  SAMPLES.forEach(s => { if (!topics.includes(s)) topics.push(s); });
+  renderTopics(); await saveTopics();
+}
+
+document.getElementById('topicInput').addEventListener('keydown', e => { if (e.key === 'Enter') addTopic(); });
+
+function resetResult() {
+  const rp = document.getElementById('resultPlaceholder');
+  rp.textContent = 'Your topic will appear here'; rp.style.display = '';
+  document.getElementById('resultText').style.display = 'none';
+}
+
+function generateTopic() {
+  if (!topics.length) {
+    const box = document.getElementById('resultBox');
+    box.classList.remove('shaking'); void box.offsetWidth; box.classList.add('shaking');
+    const rp = document.getElementById('resultPlaceholder');
+    rp.textContent = 'Add some topics first!'; rp.style.display = '';
+    document.getElementById('resultText').style.display = 'none';
+    return;
+  }
+  const pool = topics.length > 1 ? topics.filter(t => t !== lastPicked) : topics;
+  const picked = pool[Math.floor(Math.random() * pool.length)];
+  lastPicked = picked;
+  const rt = document.getElementById('resultText');
+  rt.style.opacity = '0';
+  document.getElementById('resultPlaceholder').style.display = 'none';
+  rt.style.display = 'block';
+  setTimeout(() => { rt.textContent = picked; rt.style.opacity = '1'; }, 150);
+}
+
+// ═══════════════════════════════════════════════
+//  TIMER  (saved locally per browser)
+// ═══════════════════════════════════════════════
+let totalSeconds = 0, remaining = 0, running = false, timerInterval = null;
+let savedTimers = JSON.parse(localStorage.getItem(LS_TIMER_KEY) || '[]');
+
+function fmt(s) { return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0'); }
+
+function syncSliderFill(el) {
+  const pct = ((el.value - 1) / 89 * 100).toFixed(1);
+  el.style.setProperty('--pct', pct + '%');
+}
+
+function onSlider(el) {
+  syncSliderFill(el);
+  document.getElementById('sliderVal').textContent = el.value + ' min';
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+}
+
+function applyPreset(min, btn) {
+  stopTimer();
+  totalSeconds = min * 60; remaining = totalSeconds;
+  const sl = document.getElementById('minSlider');
+  sl.value = Math.min(min, 90); syncSliderFill(sl);
+  document.getElementById('sliderVal').textContent = min + ' min';
+  document.getElementById('extraSec').value = 0;
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateDisplay();
+  document.getElementById('timerLabel').textContent = min + ' minute timer — ready';
+}
+
+function applySlider() {
+  const m = parseInt(document.getElementById('minSlider').value) || 0;
+  const s = Math.min(parseInt(document.getElementById('extraSec').value) || 0, 59);
+  if (m === 0 && s === 0) return;
+  stopTimer();
+  totalSeconds = m * 60 + s; remaining = totalSeconds;
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  updateDisplay();
+  document.getElementById('timerLabel').textContent = s > 0 ? `${m} min ${s} sec — ready` : `${m} minute timer — ready`;
+}
+
+function saveCurrentTimer() {
+  const m = parseInt(document.getElementById('minSlider').value) || 0;
+  const s = Math.min(parseInt(document.getElementById('extraSec').value) || 0, 59);
+  if (m === 0 && s === 0) return;
+  const label = fmt(m * 60 + s);
+  if (!savedTimers.includes(label)) {
+    savedTimers.push(label);
+    localStorage.setItem(LS_TIMER_KEY, JSON.stringify(savedTimers));
+    renderSavedTimers();
+  }
+}
+
+function renderSavedTimers() {
+  const cont = document.getElementById('savedTimers');
+  cont.innerHTML = '';
+  savedTimers.forEach((t, i) => {
+    const tag = document.createElement('div');
+    tag.className = 'saved-timer-tag';
+    tag.innerHTML = `<span onclick="loadSavedTimer(${i})">${t}</span><button class="del" onclick="deleteSavedTimer(event,${i})">×</button>`;
+    cont.appendChild(tag);
+  });
+}
+
+function loadSavedTimer(i) {
+  const [mStr, sStr] = savedTimers[i].split(':');
+  const m = parseInt(mStr), s = parseInt(sStr);
+  stopTimer();
+  totalSeconds = m * 60 + s; remaining = totalSeconds;
+  const sl = document.getElementById('minSlider');
+  sl.value = Math.min(m, 90); syncSliderFill(sl);
+  document.getElementById('sliderVal').textContent = m + ' min';
+  document.getElementById('extraSec').value = s;
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  updateDisplay();
+  document.getElementById('timerLabel').textContent = savedTimers[i] + ' timer — ready';
+}
+
+function deleteSavedTimer(e, i) {
+  e.stopPropagation();
+  savedTimers.splice(i, 1);
+  localStorage.setItem(LS_TIMER_KEY, JSON.stringify(savedTimers));
+  renderSavedTimers();
+}
+
+function updateDisplay() {
+  const clock = document.getElementById('timerClock');
+  const fill  = document.getElementById('progressFill');
+  clock.textContent = fmt(remaining);
+  clock.classList.remove('warning','done','pulsing');
+  const pct = totalSeconds > 0 ? (remaining / totalSeconds) * 100 : 100;
+  fill.style.width = pct + '%';
+  if (remaining <= 10 && remaining > 0 && running) {
+    clock.classList.add('warning','pulsing'); fill.style.background = 'var(--accent)';
+  } else if (remaining === 0) {
+    clock.classList.add('done'); fill.style.width = '0%';
+  } else {
+    fill.style.background = remaining <= totalSeconds * 0.25 ? 'var(--accent)' : 'var(--gold)';
+  }
+}
+
+function startPause() {
+  if (totalSeconds === 0) return;
+  const btn = document.getElementById('startBtn');
+  if (running) {
+    clearInterval(timerInterval); running = false; btn.textContent = 'Resume';
+    document.getElementById('timerClock').classList.remove('pulsing');
+    document.getElementById('timerLabel').textContent = 'Paused';
+  } else {
+    if (remaining === 0) remaining = totalSeconds;
+    running = true; btn.textContent = 'Pause';
+    document.getElementById('timerLabel').textContent = 'Writing…';
+    timerInterval = setInterval(() => {
+      remaining--; updateDisplay();
+      if (remaining === 0) {
+        clearInterval(timerInterval); running = false; btn.textContent = 'Start';
+        document.getElementById('timerLabel').textContent = "⏰ Time's up!";
+        document.getElementById('timerClock').classList.add('pulsing');
+        if (Notification.permission === 'granted')
+          new Notification('Essay Forge', { body: "Time's up! Put down your pen." });
+      }
+    }, 1000);
+  }
+}
+
+function stopTimer() {
+  clearInterval(timerInterval); running = false;
+  document.getElementById('startBtn').textContent = 'Start';
+}
+
+function resetTimer() {
+  stopTimer(); remaining = totalSeconds; updateDisplay();
+  document.getElementById('timerLabel').textContent = totalSeconds ? 'Ready' : 'Set a duration above';
+  document.getElementById('timerClock').classList.remove('pulsing','warning','done');
+}
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+(function init() {
+  if ('Notification' in window && Notification.permission === 'default')
+    Notification.requestPermission();
+
+  const sl = document.getElementById('minSlider');
+  syncSliderFill(sl);
+  renderSavedTimers();
+  updateDisplay();
+
+  // If URL was previously saved, pre-fill and auto-connect
+  if (SHEETS_URL) {
+    document.getElementById('sheetsUrl').value = SHEETS_URL;
+    markConnected();
+    loadTopics();
+  }
+})();
+</script>
+</body>
+</html>
