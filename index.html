@@ -230,21 +230,6 @@
   </header>
   <hr class="divider">
 
-  <!-- ── GOOGLE SHEETS CONFIG ── -->
-  <div class="config-banner" id="configBanner">
-    <div class="config-title">⚙ Google Sheets — Paste your Web App URL to enable shared topics</div>
-    <div class="config-row">
-      <input type="text" id="sheetsUrl"
-        placeholder="https://script.google.com/macros/s/AKfycbwDVGvRjllY2_fxgIdIeTDzNrLkfIzUqNSKj2-Xj0i0NJTmgEjwO353zrpwfFxSfMY8/exec"
-        oninput="onUrlInput()" />
-      <button class="btn btn-sm btn-accent" onclick="connectSheets()">Connect</button>
-    </div>
-    <div class="config-hint" id="configHint">
-      Paste the Web App URL from your Apps Script deployment above, then click Connect.
-      Topics will sync across everyone who uses this page.
-    </div>
-  </div>
-
   <!-- SYNC STATUS BAR -->
   <div class="sync-bar">
     <div class="sync-dot" id="syncDot"></div>
@@ -336,7 +321,7 @@
 const LS_URL_KEY    = 'essayforge_sheets_url';
 const LS_TIMER_KEY  = 'essayforge_timers';
 
-let SHEETS_URL = localStorage.getItem(LS_URL_KEY) || '';
+let SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwDVGvRjllY2_fxgIdIeTDzNrLkfIzUqNSKj2-Xj0i0NJTmgEjwO353zrpwfFxSfMY8/exec';
 
 function setSyncStatus(state, msg) {
   document.getElementById('syncDot').className = 'sync-dot ' + state;
