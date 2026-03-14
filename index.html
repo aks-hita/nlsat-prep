@@ -630,12 +630,7 @@ function resetTimer() {
   renderSavedTimers();
   updateDisplay();
 
-  // If URL was previously saved, pre-fill and auto-connect
-  if (SHEETS_URL) {
-    document.getElementById('sheetsUrl').value = SHEETS_URL;
-    markConnected();
-    loadTopics();
-  }
+ loadTopics(); 
 })();
 </script>
 </body>
